@@ -15,11 +15,39 @@
 </div>
 
 {% if pets %}
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ pets|length }}</div>
+                <div class="text-muted">Total Pets</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ upcoming_tasks|length }}</div>
+                <div class="text-muted">Pending Tasks</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ pets|selectattr('weight')|list|length }}</div>
+                <div class="text-muted">Tracked Weights</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ pets|sum(attribute='age', start=0) }}</div>
+                <div class="text-muted">Total Pet Years</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Pet Cards -->
     <div class="row g-4 mb-5">
         {% for pet in pets %}
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 pet-card">
+                <div class="card h-100 pet-card interactive-card">
                     {% if pet.photo_path %}
                         <img src="{{ url_for('static', filename='uploads/' + pet.photo_path) }}" 
                              class="card-img-top pet-photo" alt="{{ pet.name }}">
