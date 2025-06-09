@@ -1024,3 +1024,262 @@ body {
         display: none !important;
     }
 }
+
+/* Care Tips Hero Section */
+.care-tips-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 60px 0;
+    margin: -20px -15px 0 -15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.care-tips-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="2"/></g></svg>');
+    animation: floatingPattern 20s linear infinite;
+}
+
+@keyframes floatingPattern {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-60px) translateY(-60px); }
+}
+
+.pet-quote-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: gentleFloat 6s ease-in-out infinite;
+}
+
+@keyframes gentleFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+.pet-avatar-large {
+    position: relative;
+}
+
+.pet-avatar-placeholder {
+    width: 180px;
+    height: 180px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Pet Theme Selector */
+.pet-theme-selector {
+    position: relative;
+}
+
+.pet-theme-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.pet-theme-options.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.theme-option {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+.theme-option:hover {
+    background: rgba(103, 126, 234, 0.1);
+    transform: translateX(5px);
+}
+
+.theme-option.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+/* Species-specific themes */
+body.theme-dog {
+    --primary-color: #8B4513;
+    --secondary-color: #DEB887;
+}
+
+body.theme-cat {
+    --primary-color: #FF69B4;
+    --secondary-color: #FFB6C1;
+}
+
+body.theme-bird {
+    --primary-color: #1E90FF;
+    --secondary-color: #87CEEB;
+}
+
+body.theme-fish {
+    --primary-color: #00CED1;
+    --secondary-color: #AFEEEE;
+}
+
+body.theme-rabbit {
+    --primary-color: #DDA0DD;
+    --secondary-color: #E6E6FA;
+}
+
+/* Enhanced Care Tips Cards */
+.care-tips-content {
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.care-tips-content p {
+    margin-bottom: 12px;
+}
+
+.care-tips-content ul {
+    padding-left: 20px;
+}
+
+.care-tips-content li {
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.care-tips-content li::before {
+    content: '🐾';
+    position: absolute;
+    left: -20px;
+    top: 0;
+}
+
+/* Pet Logo Animation */
+.pet-logo {
+    transition: transform 0.3s ease;
+}
+
+.pet-logo:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Enhanced Cards for Care Tips */
+.card.care-tip-card {
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.card.care-tip-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.card.care-tip-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card.care-tip-card .card-header {
+    background: linear-gradient(135deg, rgba(103, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-bottom: 1px solid rgba(103, 126, 234, 0.2);
+    padding: 20px;
+}
+
+.card.care-tip-card .card-body {
+    padding: 25px;
+}
+
+/* Generate New Tips Button Enhancement */
+.btn-generate-tips {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-generate-tips::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-generate-tips:hover::before {
+    left: 100%;
+}
+
+.btn-generate-tips:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(103, 126, 234, 0.4);
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .care-tips-hero {
+        padding: 40px 0;
+        margin: -15px -15px 0 -15px;
+    }
+    
+    .pet-quote-card {
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .pet-avatar-placeholder,
+    .pet-avatar-large img {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .care-tips-hero h1 {
+        font-size: 2rem;
+    }
+}

@@ -78,7 +78,7 @@
     <div class="row g-4">
         {% for section_name, content in tips.sections.items() %}
             <div class="col-lg-6">
-                <div class="card h-100">
+                <div class="card h-100 care-tip-card">
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i data-feather="{% if 'daily' in section_name.lower() or 'routine' in section_name.lower() %}calendar{% elif 'exercise' in section_name.lower() %}activity{% elif 'grooming' in section_name.lower() %}scissors{% elif 'diet' in section_name.lower() or 'nutrition' in section_name.lower() %}coffee{% elif 'health' in section_name.lower() %}heart{% elif 'training' in section_name.lower() or 'behavior' in section_name.lower() %}award{% else %}info{% endif %}" class="me-2"></i>
@@ -96,8 +96,8 @@
     </div>
 
     <!-- Refresh Tips -->
-    <div class="text-center mt-4">
-        <a href="{{ url_for('care_tips', pet_id=pet.id) }}" class="btn btn-outline-primary">
+    <div class="text-center mt-5">
+        <a href="{{ url_for('care_tips', pet_id=pet.id) }}" class="btn btn-generate-tips">
             <i data-feather="refresh-cw" class="me-2"></i>Generate New Tips
         </a>
     </div>

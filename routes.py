@@ -396,10 +396,47 @@ def care_tips(pet_id):
         flash('Access denied.', 'error')
         return redirect(url_for('dashboard'))
     
+    # Pet-themed quotes based on species
+    pet_quotes = {
+        'dog': [
+            ("The greatest pleasure of a dog is that you may make a fool of yourself with him, and not only will he not scold you, but he will make a fool of himself, too.", "Samuel Butler"),
+            ("Dogs are not our whole life, but they make our lives whole.", "Roger Caras"),
+            ("A dog is the only thing on earth that loves you more than he loves himself.", "Josh Billings"),
+            ("The world would be a nicer place if everyone had the ability to love as unconditionally as a dog.", "M.K. Clinton")
+        ],
+        'cat': [
+            ("Time spent with cats is never wasted.", "Sigmund Freud"),
+            ("A cat has absolute emotional honesty: human beings may hide their feelings, but a cat does not.", "Ernest Hemingway"),
+            ("Cats choose us; we don't own them.", "Kristin Cast"),
+            ("In ancient times cats were worshipped as gods; they have not forgotten this.", "Terry Pratchett")
+        ],
+        'bird': [
+            ("A bird does not sing because it has an answer, it sings because it has a song.", "Chinese Proverb"),
+            ("The early bird might get the worm, but the second mouse gets the cheese.", "Willie Nelson"),
+            ("Be like a bird, sing after every storm.", "Beth Mende Conny"),
+            ("Birds are a miracle because they prove to us there is a finer, simpler state of being.", "Douglas Coupland")
+        ],
+        'default': [
+            ("Until one has loved an animal, a part of one's soul remains unawakened.", "Anatole France"),
+            ("Animals are such agreeable friends—they ask no questions; they pass no criticisms.", "George Eliot"),
+            ("The greatness of a nation can be judged by the way its animals are treated.", "Mahatma Gandhi"),
+            ("Pets are not our whole life, but they make our lives whole.", "Roger Caras")
+        ]
+    }
+    
+    # Select appropriate quote based on pet species
+    species_key = pet.species.lower() if pet.species.lower() in pet_quotes else 'default'
+    import random
+    selected_quote = random.choice(pet_quotes[species_key])
+    
     # Get AI-generated care tips
     tips = get_openrouter_tips(pet)
     
-    return render_template('care_tips.html', pet=pet, tips=tips)
+    return render_template('care_tips.html', 
+                         pet=pet, 
+                         tips=tips, 
+                         pet_quote=selected_quote[0], 
+                         quote_author=selected_quote[1])
 
 @app.route('/pet/<int:pet_id>/reminders')
 @login_required

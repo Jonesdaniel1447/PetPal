@@ -670,6 +670,103 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+// Pet theme toggle functionality
+function togglePetTheme() {
+    const themeSelector = document.querySelector('.pet-theme-selector');
+    let themeOptions = themeSelector.querySelector('.pet-theme-options');
+    
+    if (!themeOptions) {
+        // Create theme options if they don't exist
+        themeOptions = document.createElement('div');
+        themeOptions.className = 'pet-theme-options';
+        themeOptions.innerHTML = `
+            <button class="theme-option" data-theme="default">
+                <i data-feather="heart" class="me-2"></i>Default Theme
+            </button>
+            <button class="theme-option" data-theme="dog">
+                <i data-feather="heart" class="me-2"></i>Dog Theme
+            </button>
+            <button class="theme-option" data-theme="cat">
+                <i data-feather="star" class="me-2"></i>Cat Theme
+            </button>
+            <button class="theme-option" data-theme="bird">
+                <i data-feather="wind" class="me-2"></i>Bird Theme
+            </button>
+            <button class="theme-option" data-theme="fish">
+                <i data-feather="droplet" class="me-2"></i>Fish Theme
+            </button>
+            <button class="theme-option" data-theme="rabbit">
+                <i data-feather="smile" class="me-2"></i>Rabbit Theme
+            </button>
+        `;
+        themeSelector.appendChild(themeOptions);
+        
+        // Add click handlers for theme options
+        themeOptions.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                applyPetTheme(theme);
+                themeOptions.classList.remove('show');
+            });
+        });
+        
+        // Re-initialize feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+    
+    themeOptions.classList.toggle('show');
+}
+
+// Apply pet theme
+function applyPetTheme(theme) {
+    // Remove existing theme classes
+    document.body.classList.remove('theme-dog', 'theme-cat', 'theme-bird', 'theme-fish', 'theme-rabbit');
+    
+    // Apply new theme
+    if (theme !== 'default') {
+        document.body.classList.add(`theme-${theme}`);
+    }
+    
+    // Store theme preference
+    localStorage.setItem('petpal-theme', theme);
+    
+    // Update active theme option
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.remove('active');
+        if (option.getAttribute('data-theme') === theme) {
+            option.classList.add('active');
+        }
+    });
+    
+    // Show notification
+    showAlert(`Applied ${theme === 'default' ? 'default' : theme} theme!`, 'success');
+}
+
+// Load saved theme on page load
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('petpal-theme');
+    if (savedTheme) {
+        applyPetTheme(savedTheme);
+    }
+}
+
+// Close theme options when clicking outside
+document.addEventListener('click', function(event) {
+    const themeSelector = document.querySelector('.pet-theme-selector');
+    const themeOptions = document.querySelector('.pet-theme-options');
+    
+    if (themeSelector && themeOptions && !themeSelector.contains(event.target)) {
+        themeOptions.classList.remove('show');
+    }
+});
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSavedTheme();
+});
+
 // Initialize theme switching (if needed in future)
 function initializeThemeToggle() {
     const themeToggle = document.querySelector('#theme-toggle');
