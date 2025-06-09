@@ -7,6 +7,7 @@ from app import app, db
 from models import User, Pet, HealthRecord, Task, Reminder, WeightRecord
 from utils import login_required, allowed_file, get_openrouter_tips
 from ai_image_generator import generate_pet_profile_picture, generate_pet_variations, ART_STYLES, validate_api_key
+from demo_images import create_demo_profile_picture, create_demo_variations
 
 @app.route('/')
 def index():
@@ -566,50 +567,61 @@ def generate_pet_image(pet_id):
     generate_variations = request.form.get('generate_variations') == 'true'
     
     try:
-        if generate_variations:
-            # Generate multiple variations
-            variations = generate_pet_variations(
-                pet_name=pet.name,
-                pet_species=pet.species,
-                pet_breed=pet.breed,
-                base_style=art_style,
-                num_variations=3
-            )
-            
-            if variations:
-                return jsonify({
-                    'success': True,
-                    'variations': variations,
-                    'message': f'Generated {len(variations)} variations for {pet.name}!'
-                })
+        # Check if OpenAI API is available
+        api_valid, api_message = validate_api_key()
+        
+        if api_valid:
+            if generate_variations:
+                # Generate multiple variations with real AI
+                variations = generate_pet_variations(
+                    pet_name=pet.name,
+                    pet_species=pet.species,
+                    pet_breed=pet.breed,
+                    base_style=art_style,
+                    num_variations=3
+                )
+                
+                if variations:
+                    return jsonify({
+                        'success': True,
+                        'variations': variations,
+                        'message': f'Generated {len(variations)} AI variations for {pet.name}!'
+                    })
+                else:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Failed to generate variations'
+                    })
             else:
-                return jsonify({
-                    'success': False,
-                    'error': 'Failed to generate variations'
-                })
+                # Generate single image with real AI
+                result = generate_pet_profile_picture(
+                    pet_name=pet.name,
+                    pet_species=pet.species,
+                    pet_breed=pet.breed,
+                    art_style=art_style,
+                    additional_details=additional_details
+                )
+                
+                if result['success']:
+                    return jsonify({
+                        'success': True,
+                        'image_url': result['image_url'],
+                        'image_filename': result['image_filename'],
+                        'style_used': result['style_used'],
+                        'message': f'Generated {result["style_used"]} profile picture for {pet.name}!'
+                    })
+                else:
+                    return jsonify({
+                        'success': False,
+                        'error': result['error']
+                    })
         else:
-            # Generate single image
-            result = generate_pet_profile_picture(
-                pet_name=pet.name,
-                pet_species=pet.species,
-                pet_breed=pet.breed,
-                art_style=art_style,
-                additional_details=additional_details
-            )
-            
-            if result['success']:
-                return jsonify({
-                    'success': True,
-                    'image_url': result['image_url'],
-                    'image_filename': result['image_filename'],
-                    'style_used': result['style_used'],
-                    'message': f'Generated {result["style_used"]} profile picture for {pet.name}!'
-                })
-            else:
-                return jsonify({
-                    'success': False,
-                    'error': result['error']
-                })
+            # API not available - inform user
+            return jsonify({
+                'success': False,
+                'error': f'AI image generation unavailable: {api_message}. Please provide a valid OpenAI API key to use this feature.',
+                'needs_api_key': True
+            })
     
     except Exception as e:
         app.logger.error(f"Image generation error: {e}")

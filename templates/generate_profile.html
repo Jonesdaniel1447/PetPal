@@ -127,8 +127,39 @@
                         <div class="mb-4">
                             <i data-feather="image" style="width: 64px; height: 64px;" class="text-muted"></i>
                         </div>
-                        <h5 class="text-muted">No images generated yet</h5>
+                        <h5 class="text-muted">AI Profile Picture Generator</h5>
                         <p class="text-muted">Choose your art style and click "Generate Profile Picture" to create AI artwork for {{ pet.name }}</p>
+                        
+                        <!-- Sample Art Styles Preview -->
+                        <div class="mt-4">
+                            <h6 class="mb-3">Available Art Styles</h6>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <div class="style-preview-card p-2 rounded">
+                                        <i data-feather="camera" class="mb-2"></i>
+                                        <small class="d-block">Realistic</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="style-preview-card p-2 rounded">
+                                        <i data-feather="smile" class="mb-2"></i>
+                                        <small class="d-block">Cartoon</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="style-preview-card p-2 rounded">
+                                        <i data-feather="droplet" class="mb-2"></i>
+                                        <small class="d-block">Watercolor</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="style-preview-card p-2 rounded">
+                                        <i data-feather="palette" class="mb-2"></i>
+                                        <small class="d-block">Oil Painting</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Single Image Result -->
@@ -344,7 +375,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     showAlert(data.message, 'success');
                 } else {
-                    showAlert(data.error || 'Failed to generate image', 'error');
+                    if (data.needs_api_key) {
+                        showApiKeyInfo(data.error);
+                    } else {
+                        showAlert(data.error || 'Failed to generate image', 'error');
+                    }
                     showInitialState();
                 }
             }, 500);
@@ -503,6 +538,32 @@ document.addEventListener('DOMContentLoaded', function() {
             link.click();
         }
     };
+    
+    function showApiKeyInfo(errorMessage) {
+        const initialState = document.getElementById('initialState');
+        initialState.innerHTML = `
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i data-feather="key" style="width: 64px; height: 64px;" class="text-warning"></i>
+                </div>
+                <h5 class="text-warning">API Key Required</h5>
+                <p class="text-muted">${errorMessage}</p>
+                <div class="alert alert-info mt-4">
+                    <h6>To enable AI Profile Picture Generator:</h6>
+                    <ol class="text-start">
+                        <li>Get your OpenAI API key from <a href="https://platform.openai.com/account/api-keys" target="_blank">OpenAI Platform</a></li>
+                        <li>Add it to your environment configuration</li>
+                        <li>Restart the application</li>
+                    </ol>
+                    <p class="mb-0"><small>The API key enables DALL-E 3 powered image generation with multiple artistic styles.</small></p>
+                </div>
+            </div>
+        `;
+        
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
 });
 </script>
 {% endblock %}
