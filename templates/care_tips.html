@@ -3,13 +3,50 @@
 {% block title %}AI Care Tips - {{ pet.name }} - PetPal{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-4">
-    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-secondary me-3">
-        <i data-feather="arrow-left" class="me-2"></i>Back
-    </a>
-    <div>
-        <h1 class="display-6 mb-0">AI Care Tips for {{ pet.name }}</h1>
-        <p class="text-muted">Personalized recommendations for your {{ pet.breed }} {{ pet.species }}.</p>
+<div class="care-tips-hero mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-light me-3">
+                        <i data-feather="arrow-left" class="me-2"></i>Back
+                    </a>
+                    <div class="pet-theme-selector">
+                        <button class="btn btn-sm btn-outline-light" onclick="togglePetTheme()">
+                            <i data-feather="palette" class="me-1"></i>Pet Theme
+                        </button>
+                    </div>
+                </div>
+                <h1 class="display-5 text-white mb-3">
+                    <i data-feather="zap" class="me-3 text-warning"></i>
+                    AI Care Tips for {{ pet.name }}
+                </h1>
+                <p class="lead text-white-50 mb-4">Personalized recommendations for your {{ pet.breed }} {{ pet.species }}.</p>
+                
+                <!-- Pet Quote Section -->
+                <div class="pet-quote-card">
+                    <blockquote class="blockquote text-center text-white">
+                        <p class="mb-3 fs-5">"{{ pet_quote }}"</p>
+                        <footer class="blockquote-footer text-white-50">
+                            <cite title="Pet Wisdom">{{ quote_author }}</cite>
+                        </footer>
+                    </blockquote>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="pet-avatar-large">
+                    {% if pet.photo_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + pet.photo_path) }}" 
+                             class="rounded-circle shadow-lg" style="width: 180px; height: 180px; object-fit: cover;">
+                    {% else %}
+                        <div class="pet-avatar-placeholder">
+                            <i data-feather="{% if pet.species.lower() == 'dog' %}heart{% elif pet.species.lower() == 'cat' %}star{% elif pet.species.lower() == 'bird' %}wind{% else %}smile{% endif %}" 
+                               style="width: 80px; height: 80px;" class="text-white"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
