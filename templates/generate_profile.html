@@ -1,0 +1,508 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Profile Picture - {{ pet.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card text-center p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-light btn-sm">
+                        <i data-feather="arrow-left" class="me-2"></i>Back to {{ pet.name }}
+                    </a>
+                    <h1 class="mb-0">
+                        <i data-feather="image" class="me-2"></i>AI Profile Generator
+                    </h1>
+                    <div></div>
+                </div>
+                <p class="lead mb-0">Create stunning AI-generated profile pictures for {{ pet.name }}</p>
+                <small class="text-muted">Powered by DALL-E 3 AI Technology</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Generator Controls -->
+        <div class="col-lg-4 mb-4">
+            <div class="glass-card p-4">
+                <h4 class="mb-3">
+                    <i data-feather="settings" class="me-2"></i>Generation Settings
+                </h4>
+                
+                <form id="generateForm">
+                    <!-- Pet Information Display -->
+                    <div class="mb-4 p-3 bg-light bg-opacity-10 rounded">
+                        <h6 class="text-primary mb-2">Pet Details</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ pet.name }}</p>
+                        <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
+                        <p class="mb-0"><strong>Breed:</strong> {{ pet.breed }}</p>
+                    </div>
+
+                    <!-- Art Style Selection -->
+                    <div class="mb-3">
+                        <label for="artStyle" class="form-label">Art Style</label>
+                        <select class="form-select" id="artStyle" name="art_style">
+                            {% for style_key, style_data in art_styles.items() %}
+                            <option value="{{ style_key }}" {% if style_key == 'realistic' %}selected{% endif %}>
+                                {{ style_data.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text" id="styleDescription">
+                            Photorealistic style with natural lighting
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="mb-3">
+                        <label for="additionalDetails" class="form-label">Additional Details (Optional)</label>
+                        <textarea class="form-control" id="additionalDetails" name="additional_details" rows="3" 
+                                  placeholder="Add specific details like 'wearing a red collar', 'sitting in a garden', 'close-up portrait', etc."></textarea>
+                        <div class="form-text">Describe specific poses, accessories, or settings you'd like to include</div>
+                    </div>
+
+                    <!-- Generation Options -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="generateVariations" name="generate_variations">
+                            <label class="form-check-label" for="generateVariations">
+                                Generate 3 variations
+                            </label>
+                        </div>
+                        <div class="form-text">Creates multiple versions with different poses and angles</div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" id="generateBtn">
+                        <i data-feather="zap" class="me-2"></i>Generate Profile Picture
+                    </button>
+                </form>
+
+                <!-- Art Style Preview -->
+                <div class="mt-4">
+                    <h6 class="mb-3">Style Preview</h6>
+                    <div class="style-preview p-3 bg-light bg-opacity-10 rounded">
+                        <div id="stylePreview">
+                            <div class="d-flex align-items-center">
+                                <div class="style-icon me-3">
+                                    <i data-feather="camera" class="text-primary"></i>
+                                </div>
+                                <div>
+                                    <strong class="d-block">Realistic Portrait</strong>
+                                    <small class="text-muted">Photorealistic style with natural lighting</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Images Display -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h4 class="mb-3">
+                    <i data-feather="image" class="me-2"></i>Generated Images
+                </h4>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Generating...</span>
+                    </div>
+                    <h5>Creating AI artwork for {{ pet.name }}...</h5>
+                    <p class="text-muted">This may take 10-30 seconds</p>
+                    <div class="progress w-50 mx-auto">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer">
+                    <!-- Initial State -->
+                    <div id="initialState" class="text-center py-5">
+                        <div class="mb-4">
+                            <i data-feather="image" style="width: 64px; height: 64px;" class="text-muted"></i>
+                        </div>
+                        <h5 class="text-muted">No images generated yet</h5>
+                        <p class="text-muted">Choose your art style and click "Generate Profile Picture" to create AI artwork for {{ pet.name }}</p>
+                    </div>
+
+                    <!-- Single Image Result -->
+                    <div id="singleImageResult" style="display: none;">
+                        <div class="generated-image-container">
+                            <img id="generatedImage" class="img-fluid rounded shadow" alt="Generated profile picture">
+                            <div class="image-overlay">
+                                <div class="image-actions">
+                                    <button class="btn btn-success btn-sm" onclick="setAsProfilePicture()">
+                                        <i data-feather="check" class="me-1"></i>Use as Profile
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm" onclick="downloadImage()">
+                                        <i data-feather="download" class="me-1"></i>Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">Style: <span id="usedStyle"></span></small>
+                        </div>
+                    </div>
+
+                    <!-- Variations Result -->
+                    <div id="variationsResult" style="display: none;">
+                        <div class="row" id="variationsGrid">
+                            <!-- Variation images will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+.generated-image-container {
+    position: relative;
+    display: inline-block;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+
+.generated-image-container:hover {
+    transform: scale(1.02);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.generated-image-container:hover .image-overlay {
+    opacity: 1;
+}
+
+.image-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.style-preview {
+    transition: all 0.3s ease;
+}
+
+.style-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-primary);
+    border-radius: 50%;
+    color: white;
+}
+
+.variation-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.variation-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.variation-item:hover img {
+    transform: scale(1.05);
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, var(--bs-primary), var(--bs-info));
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.generating {
+    animation: pulse 2s infinite;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const generateForm = document.getElementById('generateForm');
+    const artStyleSelect = document.getElementById('artStyle');
+    const styleDescription = document.getElementById('styleDescription');
+    const generateBtn = document.getElementById('generateBtn');
+    
+    // Art style descriptions
+    const styleDescriptions = {
+        {% for style_key, style_data in art_styles.items() %}
+        '{{ style_key }}': '{{ style_data.description }}',
+        {% endfor %}
+    };
+    
+    // Update style description when selection changes
+    artStyleSelect.addEventListener('change', function() {
+        const selectedStyle = this.value;
+        styleDescription.textContent = styleDescriptions[selectedStyle];
+        updateStylePreview(selectedStyle);
+    });
+    
+    function updateStylePreview(styleKey) {
+        const styleData = {
+            {% for style_key, style_data in art_styles.items() %}
+            '{{ style_key }}': {
+                name: '{{ style_data.name }}',
+                description: '{{ style_data.description }}'
+            },
+            {% endfor %}
+        };
+        
+        const preview = document.getElementById('stylePreview');
+        const style = styleData[styleKey];
+        
+        preview.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="style-icon me-3">
+                    <i data-feather="palette" class="text-primary"></i>
+                </div>
+                <div>
+                    <strong class="d-block">${style.name}</strong>
+                    <small class="text-muted">${style.description}</small>
+                </div>
+            </div>
+        `;
+        
+        // Re-initialize Feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+    
+    // Handle form submission
+    generateForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        generateImage();
+    });
+    
+    function generateImage() {
+        const formData = new FormData(generateForm);
+        const isVariations = document.getElementById('generateVariations').checked;
+        
+        // Show loading state
+        showLoadingState();
+        
+        // Simulate progress
+        let progress = 0;
+        const progressBar = document.querySelector('.progress-bar');
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+        }, 1000);
+        
+        // Make API request
+        fetch(`/pet/{{ pet.id }}/generate_image`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                hideLoadingState();
+                
+                if (data.success) {
+                    if (data.variations) {
+                        showVariations(data.variations);
+                    } else {
+                        showSingleImage(data);
+                    }
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error || 'Failed to generate image', 'error');
+                    showInitialState();
+                }
+            }, 500);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            hideLoadingState();
+            showAlert('Network error. Please try again.', 'error');
+            showInitialState();
+        });
+    }
+    
+    function showLoadingState() {
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('initialState').style.display = 'none';
+        document.getElementById('singleImageResult').style.display = 'none';
+        document.getElementById('variationsResult').style.display = 'none';
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Generating...';
+    }
+    
+    function hideLoadingState() {
+        document.getElementById('loadingState').style.display = 'none';
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i data-feather="zap" class="me-2"></i>Generate Profile Picture';
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+    
+    function showInitialState() {
+        document.getElementById('initialState').style.display = 'block';
+        document.getElementById('singleImageResult').style.display = 'none';
+        document.getElementById('variationsResult').style.display = 'none';
+    }
+    
+    function showSingleImage(data) {
+        const img = document.getElementById('generatedImage');
+        const styleSpan = document.getElementById('usedStyle');
+        
+        img.src = `/static/${data.image_filename}`;
+        img.dataset.filename = data.image_filename;
+        styleSpan.textContent = data.style_used;
+        
+        document.getElementById('initialState').style.display = 'none';
+        document.getElementById('singleImageResult').style.display = 'block';
+        document.getElementById('variationsResult').style.display = 'none';
+    }
+    
+    function showVariations(variations) {
+        const grid = document.getElementById('variationsGrid');
+        grid.innerHTML = '';
+        
+        variations.forEach((variation, index) => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-3';
+            col.innerHTML = `
+                <div class="variation-item">
+                    <img src="/static/${variation.image_filename}" 
+                         alt="${variation.variation_type}"
+                         data-filename="${variation.image_filename}"
+                         onclick="selectVariation(this)">
+                    <div class="text-center mt-2">
+                        <small class="text-muted">${variation.variation_type}</small>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(col);
+        });
+        
+        document.getElementById('initialState').style.display = 'none';
+        document.getElementById('singleImageResult').style.display = 'none';
+        document.getElementById('variationsResult').style.display = 'block';
+    }
+    
+    window.selectVariation = function(img) {
+        // Remove previous selection
+        document.querySelectorAll('.variation-item img').forEach(i => {
+            i.style.border = 'none';
+        });
+        
+        // Highlight selected
+        img.style.border = '3px solid var(--bs-primary)';
+        
+        // Store selected filename
+        window.selectedImageFilename = img.dataset.filename;
+        
+        // Show action buttons
+        showVariationActions(img.dataset.filename);
+    };
+    
+    function showVariationActions(filename) {
+        // Create floating action buttons for the selected variation
+        const existingActions = document.querySelector('.variation-actions');
+        if (existingActions) {
+            existingActions.remove();
+        }
+        
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'variation-actions text-center mt-3';
+        actionsDiv.innerHTML = `
+            <button class="btn btn-success me-2" onclick="setAsProfilePicture('${filename}')">
+                <i data-feather="check" class="me-1"></i>Use as Profile
+            </button>
+            <button class="btn btn-outline-primary" onclick="downloadImage('${filename}')">
+                <i data-feather="download" class="me-1"></i>Download
+            </button>
+        `;
+        
+        document.getElementById('variationsResult').appendChild(actionsDiv);
+        
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+    
+    window.setAsProfilePicture = function(filename) {
+        const imageFilename = filename || document.getElementById('generatedImage')?.dataset.filename || window.selectedImageFilename;
+        
+        if (!imageFilename) {
+            showAlert('No image selected', 'error');
+            return;
+        }
+        
+        fetch(`/pet/{{ pet.id }}/set_generated_photo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_filename: imageFilename
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("pet_detail", pet_id=pet.id) }}';
+                }, 2000);
+            } else {
+                showAlert(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showAlert('Failed to update profile picture', 'error');
+        });
+    };
+    
+    window.downloadImage = function(filename) {
+        const imageFilename = filename || document.getElementById('generatedImage')?.dataset.filename;
+        if (imageFilename) {
+            const link = document.createElement('a');
+            link.href = `/static/${imageFilename}`;
+            link.download = `${imageFilename}`;
+            link.click();
+        }
+    };
+});
+</script>
+{% endblock %}

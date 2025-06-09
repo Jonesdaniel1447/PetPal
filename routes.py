@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from app import app, db
 from models import User, Pet, HealthRecord, Task, Reminder, WeightRecord
 from utils import login_required, allowed_file, get_openrouter_tips
+from ai_image_generator import generate_pet_profile_picture, generate_pet_variations, ART_STYLES, validate_api_key
 
 @app.route('/')
 def index():
@@ -532,3 +533,119 @@ def weight_chart_data(pet_id):
     }
     
     return jsonify(data)
+
+@app.route('/pet/<int:pet_id>/generate_profile')
+@login_required
+def generate_pet_profile(pet_id):
+    pet = Pet.query.get_or_404(pet_id)
+    
+    # Check if user owns this pet
+    if pet.user_id != session['user_id']:
+        flash('Access denied.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Validate API key
+    api_valid, api_message = validate_api_key()
+    if not api_valid:
+        flash(f'AI image generation is not available: {api_message}', 'error')
+        return redirect(url_for('pet_detail', pet_id=pet_id))
+    
+    return render_template('generate_profile.html', pet=pet, art_styles=ART_STYLES)
+
+@app.route('/pet/<int:pet_id>/generate_image', methods=['POST'])
+@login_required
+def generate_pet_image(pet_id):
+    pet = Pet.query.get_or_404(pet_id)
+    
+    # Check if user owns this pet
+    if pet.user_id != session['user_id']:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    art_style = request.form.get('art_style', 'realistic')
+    additional_details = request.form.get('additional_details', '')
+    generate_variations = request.form.get('generate_variations') == 'true'
+    
+    try:
+        if generate_variations:
+            # Generate multiple variations
+            variations = generate_pet_variations(
+                pet_name=pet.name,
+                pet_species=pet.species,
+                pet_breed=pet.breed,
+                base_style=art_style,
+                num_variations=3
+            )
+            
+            if variations:
+                return jsonify({
+                    'success': True,
+                    'variations': variations,
+                    'message': f'Generated {len(variations)} variations for {pet.name}!'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to generate variations'
+                })
+        else:
+            # Generate single image
+            result = generate_pet_profile_picture(
+                pet_name=pet.name,
+                pet_species=pet.species,
+                pet_breed=pet.breed,
+                art_style=art_style,
+                additional_details=additional_details
+            )
+            
+            if result['success']:
+                return jsonify({
+                    'success': True,
+                    'image_url': result['image_url'],
+                    'image_filename': result['image_filename'],
+                    'style_used': result['style_used'],
+                    'message': f'Generated {result["style_used"]} profile picture for {pet.name}!'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': result['error']
+                })
+    
+    except Exception as e:
+        app.logger.error(f"Image generation error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to generate image. Please try again.'
+        })
+
+@app.route('/pet/<int:pet_id>/set_generated_photo', methods=['POST'])
+@login_required
+def set_generated_photo(pet_id):
+    pet = Pet.query.get_or_404(pet_id)
+    
+    # Check if user owns this pet
+    if pet.user_id != session['user_id']:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    image_filename = request.json.get('image_filename')
+    
+    if not image_filename:
+        return jsonify({'error': 'No image filename provided'}), 400
+    
+    try:
+        # Update pet's photo path
+        pet.photo_path = image_filename
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Profile picture updated for {pet.name}!'
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error updating pet photo: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to update profile picture'
+        })
