@@ -9,11 +9,19 @@
             <div class="hero-icon mb-4">
                 <i data-feather="heart" style="width: 80px; height: 80px; color: var(--bs-primary);"></i>
             </div>
-            <h1 class="display-4 fw-bold mb-3">Welcome to PetPal</h1>
+            <h1 class="display-4 fw-bold mb-3 gradient-text">Welcome to PetPal</h1>
             <p class="lead mb-4">
                 Your AI-powered companion for comprehensive pet care management. 
                 Track health records, manage daily tasks, and receive personalized care recommendations.
             </p>
+            
+            <!-- Dynamic Pet Counter -->
+            <div class="pet-counter-badge mb-3">
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                    <i data-feather="users" class="me-2"></i>
+                    Join thousands of happy pet parents!
+                </span>
+            </div>
             
             {% if not session.user_id %}
                 <div class="d-flex gap-3 justify-content-center flex-wrap">

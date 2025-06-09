@@ -18,27 +18,65 @@
     <!-- Quick Stats -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="tooltip" title="View all your pets">
+                <div class="icon-wrapper mx-auto">
+                    <i data-feather="heart" class="text-primary"></i>
+                </div>
                 <div class="stat-number">{{ pets|length }}</div>
                 <div class="text-muted">Total Pets</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="tooltip" title="Tasks waiting for you">
+                <div class="icon-wrapper mx-auto">
+                    <i data-feather="clock" class="text-warning"></i>
+                </div>
                 <div class="stat-number">{{ upcoming_tasks|length }}</div>
                 <div class="text-muted">Pending Tasks</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="tooltip" title="Pets with weight tracking">
+                <div class="icon-wrapper mx-auto">
+                    <i data-feather="trending-up" class="text-success"></i>
+                </div>
                 <div class="stat-number">{{ pets|selectattr('weight')|list|length }}</div>
                 <div class="text-muted">Tracked Weights</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="tooltip" title="Combined age of all pets">
+                <div class="icon-wrapper mx-auto">
+                    <i data-feather="calendar" class="text-info"></i>
+                </div>
                 <div class="stat-number">{{ pets|sum(attribute='age', start=0) }}</div>
                 <div class="text-muted">Total Pet Years</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Pet Tip -->
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(123, 104, 238, 0.1)); border-radius: 20px;">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <div class="tip-icon-large">
+                                <i data-feather="lightbulb" style="width: 48px; height: 48px;" class="text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <h5 class="mb-2">
+                                <i data-feather="star" class="me-2"></i>
+                                Daily Pet Care Tip
+                            </h5>
+                            <p class="mb-0 tip-text">
+                                Regular grooming isn't just about looks - it helps you check for unusual lumps, bumps, or skin issues that might need veterinary attention.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

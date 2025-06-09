@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize keyboard navigation
     initializeKeyboardNavigation();
     
+    // Initialize pet-themed features
+    initializePetThemeFeatures();
+    
+    // Initialize dynamic content
+    initializeDynamicContent();
+    
     console.log('PetPal JavaScript initialized successfully!');
 });
 
