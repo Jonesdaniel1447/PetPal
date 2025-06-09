@@ -502,6 +502,174 @@ function initializeFormPersistence() {
     });
 }
 
+// Initialize pet-themed features
+function initializePetThemeFeatures() {
+    // Add pet animations to cards
+    const petCards = document.querySelectorAll('.pet-card');
+    petCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.classList.add('pet-bounce');
+            setTimeout(() => {
+                this.classList.remove('pet-bounce');
+            }, 2000);
+        });
+    });
+    
+    // Add celebration effects on task completion
+    const completeButtons = document.querySelectorAll('[href*="complete_task"]');
+    completeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const card = this.closest('.card');
+            if (card) {
+                card.classList.add('celebrate');
+                setTimeout(() => {
+                    card.classList.remove('celebrate');
+                }, 800);
+            }
+        });
+    });
+    
+    // Add floating animation to hero icon
+    const heroIcon = document.querySelector('.hero-icon i');
+    if (heroIcon) {
+        heroIcon.classList.add('floating');
+    }
+    
+    // Add wiggle animation to important buttons
+    const importantButtons = document.querySelectorAll('.btn-primary');
+    importantButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.classList.add('pet-wiggle');
+        });
+        button.addEventListener('mouseleave', function() {
+            this.classList.remove('pet-wiggle');
+        });
+    });
+}
+
+// Initialize dynamic content
+function initializeDynamicContent() {
+    // Rotate daily pet tips
+    rotatePetTips();
+    
+    // Update pet counters with animations
+    animateCounters();
+    
+    // Initialize real-time updates
+    initializeRealTimeUpdates();
+}
+
+// Rotate pet care tips
+function rotatePetTips() {
+    const petTips = [
+        "Regular grooming helps you check for unusual lumps, bumps, or skin issues that might need veterinary attention.",
+        "Fresh water should be available 24/7. Change it daily to keep your pet healthy and hydrated.",
+        "Exercise needs vary by species and breed. Dogs need daily walks, cats enjoy interactive play sessions.",
+        "Dental health is crucial - brush your pet's teeth regularly or provide dental chews.",
+        "Watch for changes in eating, drinking, or bathroom habits - they can signal health issues.",
+        "Create a safe space where your pet can retreat when feeling stressed or overwhelmed.",
+        "Regular vet checkups can catch health problems early when they're easier to treat.",
+        "Mental stimulation is as important as physical exercise - puzzle toys keep pets engaged.",
+        "Microchipping and ID tags are essential for pet safety and recovery if they get lost."
+    ];
+    
+    const tipElement = document.querySelector('.tip-text');
+    if (tipElement) {
+        let currentTip = 0;
+        setInterval(() => {
+            tipElement.style.opacity = '0';
+            setTimeout(() => {
+                currentTip = (currentTip + 1) % petTips.length;
+                tipElement.textContent = petTips[currentTip];
+                tipElement.style.opacity = '1';
+            }, 300);
+        }, 10000); // Change tip every 10 seconds
+    }
+}
+
+// Animate number counters
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number');
+    counters.forEach(counter => {
+        const target = parseInt(counter.textContent);
+        if (target > 0) {
+            const increment = Math.max(target / 50, 1);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 40);
+        }
+    });
+}
+
+// Initialize real-time updates
+function initializeRealTimeUpdates() {
+    // Update timestamps every minute
+    setInterval(updateTimestamps, 60000);
+}
+
+// Update relative timestamps
+function updateTimestamps() {
+    const timestamps = document.querySelectorAll('[data-timestamp]');
+    timestamps.forEach(element => {
+        const timestamp = new Date(element.getAttribute('data-timestamp'));
+        const now = new Date();
+        const diff = now - timestamp;
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        
+        let relative;
+        if (days > 0) {
+            relative = `${days} day${days > 1 ? 's' : ''} ago`;
+        } else if (hours > 0) {
+            relative = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else if (minutes > 0) {
+            relative = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else {
+            relative = 'Just now';
+        }
+        
+        element.textContent = relative;
+    });
+}
+
+// Toggle floating action button options
+function toggleFabOptions() {
+    const fabOptions = document.getElementById('fabOptions');
+    if (fabOptions) {
+        fabOptions.classList.toggle('show');
+    }
+}
+
+// Close FAB options when clicking outside
+document.addEventListener('click', function(event) {
+    const fabGroup = document.querySelector('.fab-group');
+    const fabOptions = document.getElementById('fabOptions');
+    
+    if (fabGroup && fabOptions && !fabGroup.contains(event.target)) {
+        fabOptions.classList.remove('show');
+    }
+});
+
+// Add keyboard support for FAB
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const fabOptions = document.getElementById('fabOptions');
+        if (fabOptions) {
+            fabOptions.classList.remove('show');
+        }
+    }
+});
+
 // Initialize theme switching (if needed in future)
 function initializeThemeToggle() {
     const themeToggle = document.querySelector('#theme-toggle');

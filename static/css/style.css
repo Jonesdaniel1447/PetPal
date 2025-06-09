@@ -837,3 +837,190 @@ body {
     font-weight: bold;
     animation: pulse 2s infinite;
 }
+
+/* Enhanced Floating Action Buttons */
+.floating-actions {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.fab-group {
+    position: relative;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a90e2, #7b68ee);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.fab:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 12px 35px rgba(74, 144, 226, 0.6);
+    color: white;
+    text-decoration: none;
+}
+
+.fab-main {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.fab-main:hover {
+    transform: scale(1.05) rotate(45deg);
+}
+
+.fab-option {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.fab-options.show .fab-option {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.fab-options.show .fab-option:nth-child(1) {
+    transition-delay: 0.1s;
+}
+
+.fab-options.show .fab-option:nth-child(2) {
+    transition-delay: 0.2s;
+}
+
+.fab-options.show .fab-option:nth-child(3) {
+    transition-delay: 0.3s;
+}
+
+.fab-option:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: scale(1.15) translateY(-2px);
+}
+
+/* Responsive FAB */
+@media (max-width: 768px) {
+    .floating-actions {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .fab {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+    
+    .fab-main {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .fab-option {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Enhanced icon wrapper for stat cards */
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: rgba(74, 144, 226, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .icon-wrapper {
+    background: rgba(74, 144, 226, 0.2);
+    transform: scale(1.1);
+}
+
+/* Pet fact card animations */
+.pet-fact {
+    transition: opacity 0.3s ease;
+}
+
+/* Enhanced tooltips */
+.tooltip {
+    font-size: 12px;
+}
+
+.tooltip-inner {
+    background: linear-gradient(135deg, #4a90e2, #7b68ee);
+    color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+/* Loading animation for dynamic content */
+.content-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.content-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus states for accessibility */
+.fab:focus,
+.btn:focus,
+.card:focus {
+    outline: 2px solid rgba(74, 144, 226, 0.5);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .floating-actions,
+    .fab {
+        display: none !important;
+    }
+}

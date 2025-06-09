@@ -161,20 +161,62 @@
 {% else %}
     <!-- Empty State -->
     <div class="text-center py-5">
-        <div class="mb-4">
-            <i data-feather="plus-circle" style="width: 80px; height: 80px;" class="text-muted"></i>
+        <div class="mb-4 floating">
+            <i data-feather="heart" style="width: 80px; height: 80px;" class="text-primary"></i>
         </div>
-        <h3>No pets added yet</h3>
-        <p class="text-muted mb-4">Start by adding your first pet to begin tracking their care and health.</p>
+        <h3 class="gradient-text">No pets added yet</h3>
+        <p class="text-muted mb-4">Start by adding your first furry, feathered, or scaled friend to begin tracking their care and health.</p>
         <a href="{{ url_for('add_pet') }}" class="btn btn-primary btn-lg">
             <i data-feather="plus-circle" class="me-2"></i>
             Add Your First Pet
         </a>
+        
+        <!-- Fun pet facts for empty state -->
+        <div class="row mt-5">
+            <div class="col-md-8 mx-auto">
+                <div class="card border-0" style="background: rgba(74, 144, 226, 0.05); border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <h6 class="text-primary mb-3">
+                            <i data-feather="star" class="me-2"></i>
+                            Did You Know?
+                        </h6>
+                        <p class="mb-0 pet-fact">
+                            Dogs can learn over 150 words and can count up to four or five!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Action Button -->
     <a href="{{ url_for('add_pet') }}" class="fab" title="Add New Pet">
         <i data-feather="plus"></i>
     </a>
+{% endif %}
+
+<!-- Floating Action Buttons for existing pets -->
+{% if pets %}
+<div class="floating-actions">
+    <div class="fab-group">
+        <button class="fab fab-main" data-bs-toggle="tooltip" data-bs-placement="left" title="Quick Actions" onclick="toggleFabOptions()">
+            <i data-feather="plus"></i>
+        </button>
+        
+        <div class="fab-options" id="fabOptions">
+            <a href="{{ url_for('add_pet') }}" class="fab fab-option" data-bs-toggle="tooltip" data-bs-placement="left" title="Add Pet">
+                <i data-feather="heart"></i>
+            </a>
+            
+            <a href="{{ url_for('add_health_record', pet_id=pets[0].id) }}" class="fab fab-option" data-bs-toggle="tooltip" data-bs-placement="left" title="Quick Health Record">
+                <i data-feather="clipboard"></i>
+            </a>
+            
+            <a href="{{ url_for('add_task', pet_id=pets[0].id) }}" class="fab fab-option" data-bs-toggle="tooltip" data-bs-placement="left" title="Add Task">
+                <i data-feather="check-circle"></i>
+            </a>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
