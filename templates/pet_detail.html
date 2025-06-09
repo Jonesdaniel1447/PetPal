@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pet.name }} - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-3">
+        <i data-feather="arrow-left" class="me-2"></i>Back
+    </a>
+    <div class="flex-grow-1">
+        <h1 class="display-6 mb-0">{{ pet.name }}</h1>
+        <p class="text-muted">{{ pet.breed }} {{ pet.species }} • {{ pet.age }} years old</p>
+    </div>
+    <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn btn-outline-primary">
+        <i data-feather="edit-2" class="me-2"></i>Edit
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Pet Info Card -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if pet.photo_path %}
+                    <img src="{{ url_for('static', filename='uploads/' + pet.photo_path) }}" 
+                         class="img-fluid rounded mb-3" style="max-height: 250px;" alt="{{ pet.name }}">
+                {% else %}
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" 
+                         style="height: 200px;">
+                        <i data-feather="camera" style="width: 48px; height: 48px;" class="text-muted"></i>
+                    </div>
+                {% endif %}
+                
+                <h5 class="card-title">{{ pet.name }}</h5>
+                <p class="card-text">
+                    <strong>Species:</strong> {{ pet.species }}<br>
+                    <strong>Breed:</strong> {{ pet.breed }}<br>
+                    <strong>Age:</strong> {{ pet.age }} years<br>
+                    {% if pet.weight %}
+                        <strong>Weight:</strong> {{ pet.weight }}kg<br>
+                    {% endif %}
+                    <strong>Added:</strong> {{ pet.created_at.strftime('%B %d, %Y') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-lg-8">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <a href="{{ url_for('health_records', pet_id=pet.id) }}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i data-feather="heart" style="width: 48px; height: 48px;" class="text-success mb-3"></i>
+                        <h5 class="card-title">Health Records</h5>
+                        <p class="card-text text-muted">Track vaccinations, vet visits, and medications</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6">
+                <a href="{{ url_for('care_checklist', pet_id=pet.id) }}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i data-feather="check-circle" style="width: 48px; height: 48px;" class="text-info mb-3"></i>
+                        <h5 class="card-title">Care Checklist</h5>
+                        <p class="card-text text-muted">Manage daily tasks and routines</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6">
+                <a href="{{ url_for('care_tips', pet_id=pet.id) }}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i data-feather="zap" style="width: 48px; height: 48px;" class="text-warning mb-3"></i>
+                        <h5 class="card-title">AI Care Tips</h5>
+                        <p class="card-text text-muted">Get breed-specific care recommendations</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6">
+                <a href="{{ url_for('reminders', pet_id=pet.id) }}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i data-feather="clock" style="width: 48px; height: 48px;" class="text-primary mb-3"></i>
+                        <h5 class="card-title">Reminders</h5>
+                        <p class="card-text text-muted">Set up recurring care reminders</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row g-4 mt-2">
+    {% if recent_health_records %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i data-feather="heart" class="me-2"></i>Recent Health Records
+                    </h6>
+                    <a href="{{ url_for('health_records', pet_id=pet.id) }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for record in recent_health_records %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm bg-success rounded-circle d-flex align-items-center justify-content-center">
+                                    <i data-feather="plus" class="text-white" style="width: 16px; height: 16px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ record.title }}</h6>
+                                <p class="mb-0 text-muted small">
+                                    {{ record.record_type.title() }} • {{ record.date.strftime('%B %d, %Y') }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    {% if pending_tasks %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i data-feather="check-circle" class="me-2"></i>Pending Tasks
+                    </h6>
+                    <a href="{{ url_for('care_checklist', pet_id=pet.id) }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for task in pending_tasks %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm bg-info rounded-circle d-flex align-items-center justify-content-center">
+                                    <i data-feather="clock" class="text-white" style="width: 16px; height: 16px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ task.task_name }}</h6>
+                                <p class="mb-0 text-muted small">
+                                    {% if task.due_date %}
+                                        Due {{ task.due_date.strftime('%B %d, %Y') }}
+                                    {% else %}
+                                        No due date set
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <a href="{{ url_for('complete_task', task_id=task.id) }}" 
+                               class="btn btn-sm btn-outline-success">
+                                <i data-feather="check" style="width: 14px; height: 14px;"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    {% if weight_records %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="trending-up" class="me-2"></i>Weight Tracking
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="weightChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if weight_records %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    
+    const weightData = {
+        labels: [{% for record in weight_records|reverse %}'{{ record.date.strftime("%m/%d") }}'{{ ',' if not loop.last }}{% endfor %}],
+        datasets: [{
+            label: 'Weight (kg)',
+            data: [{% for record in weight_records|reverse %}{{ record.weight }}{{ ',' if not loop.last }}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: weightData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Weight (kg)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

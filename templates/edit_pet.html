@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ pet.name }} - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-secondary me-3">
+        <i data-feather="arrow-left" class="me-2"></i>Back
+    </a>
+    <div>
+        <h1 class="display-6 mb-0">Edit {{ pet.name }}</h1>
+        <p class="text-muted">Update your pet's information.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <!-- Current Photo Display -->
+                        {% if pet.photo_path %}
+                            <div class="col-12 text-center mb-3">
+                                <img src="{{ url_for('static', filename='uploads/' + pet.photo_path) }}" 
+                                     class="img-thumbnail" style="max-width: 200px; max-height: 200px;" 
+                                     alt="{{ pet.name }}">
+                                <p class="text-muted mt-2 mb-0">Current photo</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Pet Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ pet.name }}" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="species" class="form-label">Species <span class="text-danger">*</span></label>
+                            <select class="form-select" id="species" name="species" required>
+                                <option value="">Select species</option>
+                                <option value="Dog" {{ 'selected' if pet.species == 'Dog' }}>Dog</option>
+                                <option value="Cat" {{ 'selected' if pet.species == 'Cat' }}>Cat</option>
+                                <option value="Bird" {{ 'selected' if pet.species == 'Bird' }}>Bird</option>
+                                <option value="Rabbit" {{ 'selected' if pet.species == 'Rabbit' }}>Rabbit</option>
+                                <option value="Hamster" {{ 'selected' if pet.species == 'Hamster' }}>Hamster</option>
+                                <option value="Guinea Pig" {{ 'selected' if pet.species == 'Guinea Pig' }}>Guinea Pig</option>
+                                <option value="Fish" {{ 'selected' if pet.species == 'Fish' }}>Fish</option>
+                                <option value="Reptile" {{ 'selected' if pet.species == 'Reptile' }}>Reptile</option>
+                                <option value="Other" {{ 'selected' if pet.species == 'Other' }}>Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="breed" class="form-label">Breed <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="breed" name="breed" 
+                                   value="{{ pet.breed }}" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="age" class="form-label">Age (years) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="age" name="age" 
+                                   value="{{ pet.age }}" min="0" max="50" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" name="weight" 
+                                   value="{{ pet.weight if pet.weight }}" 
+                                   min="0" max="200" step="0.1" placeholder="Optional">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="photo" class="form-label">Update Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" 
+                                   accept="image/*">
+                            <div class="form-text">Upload a new photo (optional)</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex gap-3 justify-content-between">
+                                <form method="POST" action="{{ url_for('delete_pet', pet_id=pet.id) }}" 
+                                      onsubmit="return confirm('Are you sure you want to delete {{ pet.name }}? This action cannot be undone.')">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i data-feather="trash-2" class="me-2"></i>
+                                        Delete Pet
+                                    </button>
+                                </form>
+                                
+                                <div class="d-flex gap-3">
+                                    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i data-feather="save" class="me-2"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('photo');
+    
+    photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const fileSize = file.size / 1024 / 1024; // MB
+            if (fileSize > 16) {
+                alert('File size must be less than 16MB');
+                e.target.value = '';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

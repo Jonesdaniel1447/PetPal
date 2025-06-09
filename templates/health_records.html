@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Health Records - {{ pet.name }} - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-secondary me-3">
+        <i data-feather="arrow-left" class="me-2"></i>Back
+    </a>
+    <div>
+        <h1 class="display-6 mb-0">{{ pet.name }}'s Health Records</h1>
+        <p class="text-muted">Track vaccinations, vet visits, medications, and weight.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Add Health Record -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i data-feather="plus-circle" class="me-2"></i>Add Health Record
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_health_record', pet_id=pet.id) }}">
+                    <div class="mb-3">
+                        <label for="record_type" class="form-label">Record Type</label>
+                        <select class="form-select" id="record_type" name="record_type" required>
+                            <option value="">Select type</option>
+                            <option value="vaccination">Vaccination</option>
+                            <option value="medication">Medication</option>
+                            <option value="vet_visit">Vet Visit</option>
+                            <option value="surgery">Surgery</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="e.g., Rabies Vaccination" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  placeholder="Additional details..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i data-feather="plus" class="me-2"></i>Add Record
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Weight Record -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i data-feather="trending-up" class="me-2"></i>Add Weight Record
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_weight_record', pet_id=pet.id) }}">
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" 
+                               min="0" max="200" step="0.1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="weight_date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="weight_date" name="date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                  placeholder="Optional notes..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info">
+                        <i data-feather="plus" class="me-2"></i>Add Weight
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Records -->
+{% if records %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i data-feather="heart" class="me-2"></i>Health Records
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if record.record_type == 'vaccination' else 'primary' if record.record_type == 'medication' else 'info' }}">
+                                        {{ record.record_type.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>{{ record.title }}</td>
+                                <td>
+                                    {% if record.description %}
+                                        {{ record.description[:50] }}{% if record.description|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">No description</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.date.strftime('%B %d, %Y') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Weight Chart -->
+{% if weight_records %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i data-feather="trending-up" class="me-2"></i>Weight History
+            </h5>
+        </div>
+        <div class="card-body">
+            <canvas id="weightChart" style="max-height: 400px;"></canvas>
+            
+            <!-- Weight Records Table -->
+            <div class="table-responsive mt-4">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight (kg)</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in weight_records %}
+                            <tr>
+                                <td>{{ record.date.strftime('%B %d, %Y') }}</td>
+                                <td>{{ record.weight }}kg</td>
+                                <td>
+                                    {% if record.notes %}
+                                        {{ record.notes }}
+                                    {% else %}
+                                        <span class="text-muted">No notes</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not records and not weight_records %}
+    <div class="text-center py-5 mt-4">
+        <div class="mb-4">
+            <i data-feather="heart" style="width: 80px; height: 80px;" class="text-muted"></i>
+        </div>
+        <h3>No health records yet</h3>
+        <p class="text-muted mb-0">Start by adding {{ pet.name }}'s first health record or weight measurement above.</p>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if weight_records %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    
+    const weightData = {
+        labels: [{% for record in weight_records|reverse %}'{{ record.date.strftime("%m/%d/%Y") }}'{{ ',' if not loop.last }}{% endfor %}],
+        datasets: [{
+            label: 'Weight (kg)',
+            data: [{% for record in weight_records|reverse %}{{ record.weight }}{{ ',' if not loop.last }}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1,
+            fill: true
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: weightData,
+        options: {
+            responsive: true,
+            interaction: {
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Weight (kg)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Set today's date as default
+document.getElementById('date').valueAsDate = new Date();
+document.getElementById('weight_date').valueAsDate = new Date();
+</script>
+{% endif %}
+{% endblock %}

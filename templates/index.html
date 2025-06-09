@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to PetPal - AI-Powered Pet Care{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="hero-icon mb-4">
+                <i data-feather="heart" style="width: 80px; height: 80px; color: var(--bs-primary);"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">Welcome to PetPal</h1>
+            <p class="lead mb-4">
+                Your AI-powered companion for comprehensive pet care management. 
+                Track health records, manage daily tasks, and receive personalized care recommendations.
+            </p>
+            
+            {% if not session.user_id %}
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                        <i data-feather="user-plus" class="me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                        <i data-feather="log-in" class="me-2"></i>Sign In
+                    </a>
+                </div>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                    <i data-feather="home" class="me-2"></i>Go to Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="feature-card h-100">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i data-feather="user" style="width: 48px; height: 48px; color: var(--bs-primary);"></i>
+                </div>
+                <h5 class="card-title">Pet Profiles</h5>
+                <p class="card-text text-muted">
+                    Create detailed profiles for each of your pets with photos, breed information, and vital stats.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="feature-card h-100">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i data-feather="heart" style="width: 48px; height: 48px; color: var(--bs-success);"></i>
+                </div>
+                <h5 class="card-title">Health Tracking</h5>
+                <p class="card-text text-muted">
+                    Monitor vaccinations, vet visits, medications, and track weight changes over time.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="feature-card h-100">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i data-feather="check-circle" style="width: 48px; height: 48px; color: var(--bs-info);"></i>
+                </div>
+                <h5 class="card-title">Care Checklists</h5>
+                <p class="card-text text-muted">
+                    Stay organized with customizable task lists for feeding, grooming, and daily care routines.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="feature-card h-100">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i data-feather="zap" style="width: 48px; height: 48px; color: var(--bs-warning);"></i>
+                </div>
+                <h5 class="card-title">AI Care Tips</h5>
+                <p class="card-text text-muted">
+                    Get personalized, breed-specific care recommendations powered by artificial intelligence.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center py-5">
+            <h2 class="mb-4">Everything Your Pet Needs</h2>
+            <p class="lead text-muted mb-4">
+                From daily care reminders to comprehensive health tracking, PetPal helps you provide 
+                the best possible care for your furry, feathered, or scaled family members.
+            </p>
+            
+            <div class="row g-3 text-start">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <i data-feather="calendar" class="me-3 mt-1 text-primary"></i>
+                        <div>
+                            <h6 class="mb-1">Smart Reminders</h6>
+                            <small class="text-muted">Never miss feeding time, medication, or vet appointments</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <i data-feather="trending-up" class="me-3 mt-1 text-success"></i>
+                        <div>
+                            <h6 class="mb-1">Growth Tracking</h6>
+                            <small class="text-muted">Visual charts to monitor your pet's weight and development</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <i data-feather="shield" class="me-3 mt-1 text-info"></i>
+                        <div>
+                            <h6 class="mb-1">Health Records</h6>
+                            <small class="text-muted">Complete medical history at your fingertips</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <i data-feather="brain" class="me-3 mt-1 text-warning"></i>
+                        <div>
+                            <h6 class="mb-1">AI Insights</h6>
+                            <small class="text-muted">Breed-specific care tips and behavioral guidance</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

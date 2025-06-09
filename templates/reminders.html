@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Reminders - {{ pet.name }} - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-secondary me-3">
+        <i data-feather="arrow-left" class="me-2"></i>Back
+    </a>
+    <div>
+        <h1 class="display-6 mb-0">{{ pet.name }}'s Reminders</h1>
+        <p class="text-muted">Set up recurring care reminders and schedules.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Add Reminder -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i data-feather="plus-circle" class="me-2"></i>Add New Reminder
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_reminder', pet_id=pet.id) }}">
+                    <div class="mb-3">
+                        <label for="task_name" class="form-label">Reminder Name</label>
+                        <input type="text" class="form-control" id="task_name" name="task_name" 
+                               placeholder="e.g., Morning feeding, Evening walk" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2" 
+                                  placeholder="Additional details..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schedule_time" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="schedule_time" name="schedule_time" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring" onchange="toggleRecurrence()">
+                            <label class="form-check-label" for="is_recurring">
+                                Recurring reminder
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="recurrence_options" style="display: none;">
+                        <label for="recurrence_type" class="form-label">Repeat</label>
+                        <select class="form-select" id="recurrence_type" name="recurrence_type">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i data-feather="bell" class="me-2"></i>Add Reminder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reminder Quick Info -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i data-feather="info" class="me-2"></i>Reminder Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i data-feather="lightbulb" class="me-2"></i>
+                    <strong>Note:</strong> Reminders are currently stored for your reference. 
+                    Future updates will include push notifications and email alerts.
+                </div>
+                
+                <h6>Common Care Reminders:</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i data-feather="sunrise" class="me-2 text-warning"></i>
+                        <strong>Morning feeding</strong> - Typically 7:00-8:00 AM
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="sunset" class="me-2 text-info"></i>
+                        <strong>Evening feeding</strong> - Typically 5:00-6:00 PM
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="activity" class="me-2 text-success"></i>
+                        <strong>Daily walks</strong> - Morning and evening
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="droplet" class="me-2 text-primary"></i>
+                        <strong>Medication</strong> - As prescribed by vet
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="scissors" class="me-2 text-secondary"></i>
+                        <strong>Grooming</strong> - Weekly or as needed
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Reminders -->
+{% if reminders %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i data-feather="clock" class="me-2"></i>Active Reminders
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for reminder in reminders %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card reminder-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">{{ reminder.task_name }}</h6>
+                                    <div class="time-badge">{{ reminder.schedule_time.strftime('%I:%M %p') }}</div>
+                                </div>
+                                
+                                {% if reminder.description %}
+                                    <p class="card-text text-muted small mb-3">{{ reminder.description }}</p>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    {% if reminder.is_recurring %}
+                                        <span class="badge bg-success">
+                                            <i data-feather="repeat" style="width: 12px; height: 12px;" class="me-1"></i>
+                                            {{ reminder.recurrence_type.title() }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">One-time</span>
+                                    {% endif %}
+                                    
+                                    <small class="text-muted">
+                                        Added {{ reminder.created_at.strftime('%m/%d') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i data-feather="calendar" class="me-2"></i>Today's Schedule
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="timeline">
+                {% for reminder in reminders|sort(attribute='schedule_time') %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ reminder.task_name }}</h6>
+                                    {% if reminder.description %}
+                                        <small class="text-muted">{{ reminder.description }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">{{ reminder.schedule_time.strftime('%I:%M %p') }}</div>
+                                    {% if reminder.is_recurring %}
+                                        <small class="text-success">{{ reminder.recurrence_type }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5 mt-4">
+        <div class="mb-4">
+            <i data-feather="bell" style="width: 80px; height: 80px;" class="text-muted"></i>
+        </div>
+        <h3>No reminders set</h3>
+        <p class="text-muted mb-0">Create your first reminder for {{ pet.name }} to stay on top of their care schedule.</p>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleRecurrence() {
+    const checkbox = document.getElementById('is_recurring');
+    const options = document.getElementById('recurrence_options');
+    
+    if (checkbox.checked) {
+        options.style.display = 'block';
+        document.getElementById('recurrence_type').required = true;
+    } else {
+        options.style.display = 'none';
+        document.getElementById('recurrence_type').required = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default time to current time
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('schedule_time').value = timeString;
+});
+</script>
+{% endblock %}

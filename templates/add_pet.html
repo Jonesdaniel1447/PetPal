@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Add Pet - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-3">
+        <i data-feather="arrow-left" class="me-2"></i>Back
+    </a>
+    <div>
+        <h1 class="display-6 mb-0">Add New Pet</h1>
+        <p class="text-muted">Create a profile for your beloved companion.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Pet Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="species" class="form-label">Species <span class="text-danger">*</span></label>
+                            <select class="form-select" id="species" name="species" required>
+                                <option value="">Select species</option>
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Bird">Bird</option>
+                                <option value="Rabbit">Rabbit</option>
+                                <option value="Hamster">Hamster</option>
+                                <option value="Guinea Pig">Guinea Pig</option>
+                                <option value="Fish">Fish</option>
+                                <option value="Reptile">Reptile</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="breed" class="form-label">Breed <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="breed" name="breed" 
+                                   placeholder="e.g., Labrador Retriever, Persian, etc." required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="age" class="form-label">Age (years) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="age" name="age" min="0" max="50" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" name="weight" 
+                                   min="0" max="200" step="0.1" placeholder="Optional">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="photo" class="form-label">Pet Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" 
+                                   accept="image/*">
+                            <div class="form-text">Upload a photo of your pet (optional)</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex gap-3 justify-content-end">
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i data-feather="plus-circle" class="me-2"></i>
+                                    Add Pet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('photo');
+    
+    photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const fileSize = file.size / 1024 / 1024; // MB
+            if (fileSize > 16) {
+                alert('File size must be less than 16MB');
+                e.target.value = '';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

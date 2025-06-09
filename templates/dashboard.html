@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PetPal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6">Welcome back, {{ user.name }}!</h1>
+        <p class="text-muted">Manage your pets and stay on top of their care.</p>
+    </div>
+    <a href="{{ url_for('add_pet') }}" class="btn btn-primary">
+        <i data-feather="plus-circle" class="me-2"></i>
+        Add New Pet
+    </a>
+</div>
+
+{% if pets %}
+    <!-- Pet Cards -->
+    <div class="row g-4 mb-5">
+        {% for pet in pets %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 pet-card">
+                    {% if pet.photo_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + pet.photo_path) }}" 
+                             class="card-img-top pet-photo" alt="{{ pet.name }}">
+                    {% else %}
+                        <div class="card-img-top pet-photo-placeholder d-flex align-items-center justify-content-center">
+                            <i data-feather="camera" style="width: 48px; height: 48px;" class="text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ pet.name }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                {{ pet.breed }} {{ pet.species }} • {{ pet.age }} years old
+                                {% if pet.weight %}
+                                    • {{ pet.weight }}kg
+                                {% endif %}
+                            </small>
+                        </p>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i data-feather="eye" class="me-1"></i>View
+                            </a>
+                            <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn btn-outline-secondary btn-sm">
+                                <i data-feather="edit-2" class="me-1"></i>Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Upcoming Tasks -->
+    {% if upcoming_tasks %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i data-feather="clock" class="me-2"></i>
+                    Upcoming Tasks
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for item in upcoming_tasks %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center">
+                                        <i data-feather="check-circle" class="text-white" style="width: 16px; height: 16px;"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.task.task_name }}</h6>
+                                    <p class="mb-0 text-muted small">
+                                        {{ item.pet.name }}
+                                        {% if item.task.due_date %}
+                                            • Due {{ item.task.due_date.strftime('%m/%d') }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i data-feather="plus-circle" style="width: 80px; height: 80px;" class="text-muted"></i>
+        </div>
+        <h3>No pets added yet</h3>
+        <p class="text-muted mb-4">Start by adding your first pet to begin tracking their care and health.</p>
+        <a href="{{ url_for('add_pet') }}" class="btn btn-primary btn-lg">
+            <i data-feather="plus-circle" class="me-2"></i>
+            Add Your First Pet
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
