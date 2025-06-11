@@ -15,6 +15,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Import routes at the top level to register them
+import routes  # noqa: F401
+
 # configure the database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "sqlite:///petpal.db"
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -42,7 +45,6 @@ mail.init_app(app)
 with app.app_context():
     # Make sure to import the models here or their tables won't be created
     import models  # noqa: F401
-    import routes  # noqa: F401
     
     db.create_all()
 

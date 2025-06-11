@@ -120,13 +120,7 @@
 <!-- Additional Resources -->
 <div class="card mt-4 bg-light">
     <div class="card-body">
-        <h5 class="card-title">
-            <i data-feather="info" class="me-2"></i>Important Reminder
-        </h5>
-        <p class="card-text mb-3">
-            While AI-generated tips provide helpful general guidance, they should not replace professional veterinary advice. 
-            Always consult with your veterinarian for specific health concerns or before making significant changes to your pet's care routine.
-        </p>
+
         
         <div class="row g-3">
             <div class="col-md-4">
@@ -154,11 +148,12 @@
 
 {% block scripts %}
 <script>
-// Auto-refresh if still generating tips
-{% if not tips.error and not tips.success %}
-setTimeout(function() {
-    window.location.reload();
-}, 3000);
-{% endif %}
+  window.currentPetSpecies = "{{ pet.species|lower }}";
+  // Auto-refresh if still generating tips
+  {% if not tips.error and not tips.success %}
+  setTimeout(function() {
+      window.location.reload();
+  }, 3000);
+  {% endif %}
 </script>
 {% endblock %}

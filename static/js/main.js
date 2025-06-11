@@ -720,17 +720,19 @@ function togglePetTheme() {
 }
 
 // Apply pet theme
-function applyPetTheme(theme) {
+function applyPetTheme(theme, options = {}) {
     // Remove existing theme classes
-    document.body.classList.remove('theme-dog', 'theme-cat', 'theme-bird', 'theme-fish', 'theme-rabbit');
+    document.body.classList.remove('theme-dog', 'theme-cat', 'theme-bird', 'theme-fish', 'theme-rabbit', 'theme-rabbit', 'theme-hamster', 'theme-guinea pig', 'theme-reptile', 'theme-other');
     
     // Apply new theme
     if (theme !== 'default') {
         document.body.classList.add(`theme-${theme}`);
     }
     
-    // Store theme preference
-    localStorage.setItem('petpal-theme', theme);
+    // Store theme preference unless skipSave is true
+    if (!options.skipSave) {
+        localStorage.setItem('petpal-theme', theme);
+    }
     
     // Update active theme option
     document.querySelectorAll('.theme-option').forEach(option => {
@@ -764,7 +766,11 @@ document.addEventListener('click', function(event) {
 
 // Initialize theme on page load
 document.addEventListener('DOMContentLoaded', function() {
-    loadSavedTheme();
+    if (window.currentPetSpecies) {
+        applyPetTheme(window.currentPetSpecies, { skipSave: true }); // skipSave is a new optional param
+    } else {
+        loadSavedTheme();
+    }
 });
 
 // Initialize theme switching (if needed in future)

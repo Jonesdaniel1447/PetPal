@@ -3,162 +3,177 @@
 {% block title %}Generate Profile Picture - {{ pet.name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="glass-card text-center p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-outline-light btn-sm">
-                        <i data-feather="arrow-left" class="me-2"></i>Back to {{ pet.name }}
-                    </a>
-                    <h1 class="mb-0">
-                        <i data-feather="image" class="me-2"></i>AI Profile Generator
-                    </h1>
-                    <div></div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-card p-4 ai-chat-card">
+                <h2 class="mb-4"><i data-feather="help-circle" class="me-2"></i>AI Q&amp;A Chat About Your Pet</h2>
+                <div id="chatWindow" class="chat-window mb-3">
+                    <!-- Messages will be dynamically appended here -->
                 </div>
-                <p class="lead mb-0">Create stunning AI-generated profile pictures for {{ pet.name }}</p>
-                <small class="text-muted">Powered by DALL-E 3 AI Technology</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Generator Controls -->
-        <div class="col-lg-4 mb-4">
-            <div class="glass-card p-4">
-                <h4 class="mb-3">
-                    <i data-feather="settings" class="me-2"></i>Generation Settings
-                </h4>
-                
-                <form id="generateForm">
-                    <!-- Pet Information Display -->
-                    <div class="mb-4 p-3 bg-light bg-opacity-10 rounded">
-                        <h6 class="text-primary mb-2">Pet Details</h6>
-                        <p class="mb-1"><strong>Name:</strong> {{ pet.name }}</p>
-                        <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
-                        <p class="mb-0"><strong>Breed:</strong> {{ pet.breed }}</p>
-                    </div>
-
-                    <!-- Art Style Selection -->
-                    <div class="mb-3">
-                        <label for="artStyle" class="form-label">Art Style</label>
-                        <select class="form-select" id="artStyle" name="art_style">
-                            {% for style_key, style_data in art_styles.items() %}
-                            <option value="{{ style_key }}" {% if style_key == 'realistic' %}selected{% endif %}>
-                                {{ style_data.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        <div class="form-text" id="styleDescription">
-                            Photorealistic style with natural lighting
-                        </div>
-                    </div>
-
-                    <!-- Additional Details -->
-                    <div class="mb-3">
-                        <label for="additionalDetails" class="form-label">Additional Details (Optional)</label>
-                        <textarea class="form-control" id="additionalDetails" name="additional_details" rows="3" 
-                                  placeholder="Add specific details like 'wearing a red collar', 'sitting in a garden', 'close-up portrait', etc."></textarea>
-                        <div class="form-text">Describe specific poses, accessories, or settings you'd like to include</div>
-                    </div>
-
-                    <!-- Generation Options -->
-                    <div class="mb-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="generateVariations" name="generate_variations">
-                            <label class="form-check-label" for="generateVariations">
-                                Generate 3 variations
-                            </label>
-                        </div>
-                        <div class="form-text">Creates multiple versions with different poses and angles</div>
-                    </div>
-
-                    <!-- Generate Button -->
-                    <button type="submit" class="btn btn-primary w-100 btn-lg" id="generateBtn">
-                        <i data-feather="zap" class="me-2"></i>Generate Profile Picture
-                    </button>
+                <form id="chatForm" class="d-flex align-items-center">
+                    <input type="text" class="form-control form-control-lg me-2" id="chatInput" placeholder="Type your question about {{ pet.name }} or pet care..." autocomplete="off" required>
+                    <button type="submit" class="btn btn-primary btn-lg"><i data-feather="send"></i></button>
                 </form>
-
-                <!-- Art Style Preview -->
-                <div class="mt-4">
-                    <h6 class="mb-3">Style Preview</h6>
-                    <div class="style-preview p-3 bg-light bg-opacity-10 rounded">
-                        <div id="stylePreview">
-                            <div class="d-flex align-items-center">
-                                <div class="style-icon me-3">
-                                    <i data-feather="camera" class="text-primary"></i>
-                                </div>
-                                <div>
-                                    <strong class="d-block">Realistic Portrait</strong>
-                                    <small class="text-muted">Photorealistic style with natural lighting</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
+            <style>
+                .ai-chat-card { text-align: left; }
+                .chat-window {
+                    background: rgba(34, 34, 54, 0.7);
+                    border-radius: 16px;
+                    min-height: 300px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 0 24px #7b68ee33, 0 0 48px #00fff733;
+                }
+                .chat-message {
+                    margin-bottom: 18px;
+                    display: flex;
+                    align-items: flex-start;
+                }
+                .chat-message.user .bubble {
+                    background: linear-gradient(90deg, #7b68ee 0%, #00fff7 100%);
+                    color: #222;
+                    align-self: flex-end;
+                }
+                .chat-message.ai .bubble {
+                    background: rgba(143, 143, 255, 0.15);
+                    color: #fff;
+                    border: 1.5px solid #7b68ee;
+                    align-self: flex-start;
+                }
+                .bubble {
+                    border-radius: 18px;
+                    padding: 14px 18px;
+                    max-width: 75%;
+                    box-shadow: 0 2px 12px #7b68ee33;
+                    font-size: 1.1rem;
+                }
+                .chat-message.user { justify-content: flex-end; }
+                .chat-message.ai { justify-content: flex-start; }
+                .chat-avatar {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: #7b68ee;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 10px;
+                    color: #fff;
+                    font-weight: bold;
+                    font-size: 1.1rem;
+                }
+                .chat-message.user .chat-avatar {
+                    background: #00fff7;
+                    color: #222;
+                    margin-left: 10px;
+                    margin-right: 0;
+                }
+            </style>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const chatWindow = document.getElementById('chatWindow');
+                const chatForm = document.getElementById('chatForm');
+                const chatInput = document.getElementById('chatInput');
+                let messages = [];
+
+                function appendMessage(role, content) {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-message ' + role;
+                    let avatarHtml = '';
+                    if (role === 'ai') {
+                        avatarHtml = '<div class="chat-avatar"><i data-feather="cpu"></i></div>';
+                    } else {
+                        avatarHtml = '<div class="chat-avatar">You</div>';
+                    }
+                    msgDiv.innerHTML = `${role === 'user' ? '' : avatarHtml}<div class="bubble">${content}</div>${role === 'user' ? avatarHtml : ''}`;
+                    chatWindow.appendChild(msgDiv);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                    if (typeof feather !== 'undefined') feather.replace();
+                }
+
+                chatForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const question = chatInput.value.trim();
+                    if (!question) return;
+                    appendMessage('user', question);
+                    chatInput.value = '';
+                    appendMessage('ai', '<span class="text-muted">Thinking...</span>');
+                    fetch('/ask_ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        // Remove the "Thinking..." placeholder
+                        const aiMsgs = chatWindow.querySelectorAll('.chat-message.ai .bubble');
+                        if (aiMsgs.length) aiMsgs[aiMsgs.length-1].innerHTML = data.answer || `<span class="text-danger">${data.error || 'Error'}</span>`;
+                    })
+                    .catch(() => {
+                        const aiMsgs = chatWindow.querySelectorAll('.chat-message.ai .bubble');
+                        if (aiMsgs.length) aiMsgs[aiMsgs.length-1].innerHTML = '<span class="text-danger">Network error</span>';
+                    });
+                });
+            });
+            </script>
         </div>
 
-        <!-- Generated Images Display -->
+        <!-- Suggested Questions Below Chat -->
         <div class="col-lg-8">
-            <div class="glass-card p-4">
-                <h4 class="mb-3">
-                    <i data-feather="image" class="me-2"></i>Generated Images
-                </h4>
-
-                <!-- Loading State -->
-                <div id="loadingState" class="text-center py-5" style="display: none;">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Generating...</span>
-                    </div>
-                    <h5>Creating AI artwork for {{ pet.name }}...</h5>
-                    <p class="text-muted">This may take 10-30 seconds</p>
-                    <div class="progress w-50 mx-auto">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <!-- Results Container -->
-                <div id="resultsContainer">
-                    <!-- Initial State -->
-                    <div id="initialState" class="text-center py-5">
-                        <div class="mb-4">
-                            <i data-feather="image" style="width: 64px; height: 64px;" class="text-muted"></i>
-                        </div>
-                        <h5 class="text-muted">AI Profile Picture Generator</h5>
-                        <p class="text-muted">Choose your art style and click "Generate Profile Picture" to create AI artwork for {{ pet.name }}</p>
-                        
-                        <!-- Sample Art Styles Preview -->
-                        <div class="mt-4">
-                            <h6 class="mb-3">Available Art Styles</h6>
-                            <div class="row g-2">
-                                <div class="col-6 col-md-3">
-                                    <div class="style-preview-card p-2 rounded">
-                                        <i data-feather="camera" class="mb-2"></i>
-                                        <small class="d-block">Realistic</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="style-preview-card p-2 rounded">
-                                        <i data-feather="smile" class="mb-2"></i>
-                                        <small class="d-block">Cartoon</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="style-preview-card p-2 rounded">
-                                        <i data-feather="droplet" class="mb-2"></i>
-                                        <small class="d-block">Watercolor</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="style-preview-card p-2 rounded">
-                                        <i data-feather="palette" class="mb-2"></i>
-                                        <small class="d-block">Oil Painting</small>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="glass-card p-4 mt-4">
+                <h5 class="mb-3 text-gradient"><i data-feather="message-square" class="me-2"></i>Try asking:</h5>
+                <ul class="list-unstyled ai-suggestions">
+                    <li><span class="suggestion-bubble">What are the best foods for {{ pet.name }}?</span></li>
+                    <li><span class="suggestion-bubble">How often should I walk my {{ pet.species|default('pet') }}?</span></li>
+                    <li><span class="suggestion-bubble">What vaccinations does a {{ pet.breed|default('dog') }} need?</span></li>
+                    <li><span class="suggestion-bubble">How do I keep {{ pet.name }} entertained indoors?</span></li>
+                    <li><span class="suggestion-bubble">What are signs of illness I should watch for?</span></li>
+                </ul>
+            </div>
+            <style>
+                .ai-suggestions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px 18px;
+                    margin-top: 8px;
+                }
+                .suggestion-bubble {
+                    background: rgba(143, 143, 255, 0.13);
+                    border: 1.5px solid #7b68ee;
+                    border-radius: 18px;
+                    padding: 10px 18px;
+                    color: #b3baff;
+                    font-size: 1.08rem;
+                    cursor: pointer;
+                    transition: background 0.2s, color 0.2s;
+                    display: inline-block;
+                }
+                .suggestion-bubble:hover {
+                    background: #7b68ee;
+                    color: #fff;
+                }
+                .text-gradient {
+                    background: linear-gradient(90deg, #7b68ee 0%, #00fff7 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+            </style>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.suggestion-bubble').forEach(function(el) {
+                    el.addEventListener('click', function() {
+                        const chatInput = document.getElementById('chatInput');
+                        chatInput.value = el.textContent;
+                        chatInput.focus();
+                    });
+                });
+            });
+            </script>
                         </div>
                     </div>
 

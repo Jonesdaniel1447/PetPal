@@ -3,15 +3,28 @@
 {% block title %}Dashboard - PetPal{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="display-6">Welcome back, {{ user.name }}!</h1>
-        <p class="text-muted">Manage your pets and stay on top of their care.</p>
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center mt-4 mb-5">
+    <div class="dashboard-gradient-bar mx-auto mb-4">
+        <span class="dashboard-bar-text">Caring for pets, enriching lives.</span>
     </div>
-    <a href="{{ url_for('add_pet') }}" class="btn btn-primary">
-        <i data-feather="plus-circle" class="me-2"></i>
-        Add New Pet
-    </a>
+    <div class="p-4 neon-border" style="background: rgba(38,44,67,0.93); border-radius: 28px; max-width: 600px; width: 100%; box-shadow: 0 0 16px #7b68ee66, 0 0 28px #4a90e233;">
+        <h1 class="display-4 neon-text mb-2 text-center">Welcome back, {{ user.name|title }}!</h1>
+        <p class="text-muted text-center mb-3">Manage your pets and stay on top of their care.</p>
+        <div class="marquee mb-3"><span class="marquee-content">🐾 "Pets leave pawprints on our hearts." &nbsp; • &nbsp; "The best therapist has fur and four legs." &nbsp; • &nbsp; "A house is not a home without a pet." &nbsp; • &nbsp; "Caring for pets, enriching lives." 🐾</span></div>
+        <div class="d-flex flex-column align-items-center w-100">
+            <a href="{{ url_for('add_pet') }}" class="btn btn-neon mb-3 px-4 py-2" style="font-size: 1.1rem;">
+                <i data-feather="plus-circle" class="me-2"></i>
+                Add New Pet
+            </a>
+            <div style="font-size: 3.2rem; color: #6ee2ff; text-shadow: 0 0 10px #6ee2ff44; margin-bottom: 18px;">
+                <i data-feather="heart"></i>
+            </div>
+            <div class="w-100 mb-3">
+                        <div class="px-4 py-2 mb-2 mx-auto" style="background: linear-gradient(90deg, #6ee2ff11 0%, #8f8fff11 100%); color: #eaf6ff; border-radius: 12px; box-shadow: 0 0 8px #6ee2ff33; font-weight: 500; font-size: 1.08rem; max-width: 420px;">"The best therapist has fur and four legs."</div>
+            </div>
+            <button class="btn btn-neon px-5 py-2" style="font-size: 1.13rem; border-radius: 14px; box-shadow: 0 0 12px #6ee2ff44, 0 0 24px #8f8fff33;">Caring for pets, enriching lives.</button>
+        </div>
+    </div>
 </div>
 
 {% if pets %}

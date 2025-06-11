@@ -331,9 +331,12 @@ def care_checklist(pet_id):
     
     return render_template('care_checklist.html', pet=pet, pending_tasks=pending_tasks, completed_tasks=completed_tasks)
 
-@app.route('/pet/<int:pet_id>/add_task', methods=['POST'])
+@app.route('/pet/<int:pet_id>/add_task', methods=['GET', 'POST'])
 @login_required
 def add_task(pet_id):
+    if request.method == 'GET':
+        # Redirect GET requests to care checklist (or change to reminders if preferred)
+        return redirect(url_for('care_checklist', pet_id=pet_id))
     pet = Pet.query.get_or_404(pet_id)
     
     # Check if user owns this pet
