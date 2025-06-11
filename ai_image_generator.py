@@ -2,12 +2,9 @@ import os
 import requests
 import base64
 from datetime import datetime
-from openai import OpenAI
 
-# the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-# do not change this unless explicitly requested by the user
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+GOOGLE_AI_STUDIO_API_KEY = os.environ.get("GOOGLE_AI_STUDIO_API_KEY")
+GOOGLE_AI_STUDIO_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/imagegeneration:generate"  # Example endpoint, update if needed
 
 # Available art styles for pet profile generation
 ART_STYLES = {
@@ -54,38 +51,39 @@ ART_STYLES = {
 }
 
 def generate_pet_profile_picture(pet_name, pet_species, pet_breed, art_style='realistic', additional_details=''):
-    """Generate a custom profile picture for a pet using DALL-E"""
+    """Generate a custom profile picture for a pet using Google AI Studio"""
     try:
-        if not OPENAI_API_KEY:
-            raise ValueError("OpenAI API key not configured")
-        
-        # Get style configuration
+        if not GOOGLE_AI_STUDIO_API_KEY:
+            raise ValueError("Google AI Studio API key not configured")
+
         style_config = ART_STYLES.get(art_style, ART_STYLES['realistic'])
-        
-        # Build the prompt
         base_prompt = f"A beautiful portrait of a {pet_breed} {pet_species} named {pet_name}"
-        
         if additional_details:
             base_prompt += f", {additional_details}"
-        
-        # Add style-specific prompt suffix
         full_prompt = f"{base_prompt}, {style_config['prompt_suffix']}"
-        
-        # Generate image with DALL-E 3
-        response = openai_client.images.generate(
-            model="dall-e-3",
-            prompt=full_prompt,
-            size="1024x1024",
-            quality="standard",
-            n=1,
-        )
-        
-        # Get the image URL
-        image_url = response.data[0].url
-        
-        # Download and save the image
-        image_filename = save_generated_image(image_url, pet_name, art_style)
-        
+
+        # Google AI Studio API request (update payload/endpoint as needed)
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {GOOGLE_AI_STUDIO_API_KEY}"
+        }
+        payload = {
+            "prompt": full_prompt,
+            "num_images": 1,
+            "image_size": "512x512"
+        }
+        response = requests.post(GOOGLE_AI_STUDIO_API_URL, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+
+        # Adapt this extraction if Google API response differs
+        image_url = None
+        if 'images' in data and data['images']:
+            image_url = data['images'][0]['url']
+        elif 'data' in data and data['data'] and 'url' in data['data'][0]:
+            image_url = data['data'][0]['url']
+        image_filename = save_generated_image(image_url, pet_name, art_style) if image_url else None
+
         if image_filename:
             return {
                 'success': True,
@@ -99,7 +97,6 @@ def generate_pet_profile_picture(pet_name, pet_species, pet_breed, art_style='re
                 'success': False,
                 'error': 'Failed to save generated image'
             }
-        
     except Exception as e:
         return {
             'success': False,
@@ -173,16 +170,3 @@ def get_style_preview_prompts():
         }
         for style_key, style_data in ART_STYLES.items()
     }
-
-def validate_api_key():
-    """Validate that the OpenAI API key is working"""
-    try:
-        if not OPENAI_API_KEY:
-            return False, "OpenAI API key not configured"
-        
-        # Test with a simple API call
-        openai_client.models.list()
-        return True, "API key is valid"
-        
-    except Exception as e:
-        return False, f"API key validation failed: {str(e)}"
