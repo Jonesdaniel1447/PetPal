@@ -6,8 +6,48 @@ from werkzeug.utils import secure_filename
 from app import app, db
 from models import User, Pet, HealthRecord, Task, Reminder, WeightRecord
 from utils import login_required, allowed_file, get_openrouter_tips
-from ai_image_generator import generate_pet_profile_picture, generate_pet_variations, ART_STYLES
+
+# --- AI Pet Name Generator ---
+import requests
+
+@app.route('/generate_pet_name', methods=['GET', 'POST'])
+def generate_pet_name():
+    suggested_names = []
+    error = None
+    if request.method == 'POST':
+        species = request.form.get('species', '').strip()
+        breed = request.form.get('breed', '').strip()
+        gender = request.form.get('gender', '').strip()
+        theme = request.form.get('theme', '').strip()
+        api_key = os.environ.get('OPENROUTER_API_KEY')
+        prompt = f"Suggest 5 creative pet names for a {gender} {breed} {species}. Theme: {theme}. List only the names, comma-separated."
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "meta-llama/llama-3.1-8b-instruct:free",
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        try:
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=20
+            )
+            response.raise_for_status()
+            result = response.json()
+            answer = result['choices'][0]['message']['content']
+            # Expecting comma-separated names
+            suggested_names = [n.strip() for n in answer.split(',') if n.strip()]
+        except Exception as e:
+            error = f"Failed to get suggestions: {e}"
+    return render_template('generate_pet_name.html', suggested_names=suggested_names, error=error)
+
+
 from demo_images import create_demo_profile_picture, create_demo_variations
+
 
 @app.route('/')
 def index():
@@ -391,58 +431,6 @@ def complete_task(task_id):
     
     return redirect(url_for('care_checklist', pet_id=pet.id))
 
-@app.route('/pet/<int:pet_id>/care_tips')
-@login_required
-def care_tips(pet_id):
-    pet = Pet.query.get_or_404(pet_id)
-    
-    # Check if user owns this pet
-    if pet.user_id != session['user_id']:
-        flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Pet-themed quotes based on species
-    pet_quotes = {
-        'dog': [
-            ("The greatest pleasure of a dog is that you may make a fool of yourself with him, and not only will he not scold you, but he will make a fool of himself, too.", "Samuel Butler"),
-            ("Dogs are not our whole life, but they make our lives whole.", "Roger Caras"),
-            ("A dog is the only thing on earth that loves you more than he loves himself.", "Josh Billings"),
-            ("The world would be a nicer place if everyone had the ability to love as unconditionally as a dog.", "M.K. Clinton")
-        ],
-        'cat': [
-            ("Time spent with cats is never wasted.", "Sigmund Freud"),
-            ("A cat has absolute emotional honesty: human beings may hide their feelings, but a cat does not.", "Ernest Hemingway"),
-            ("Cats choose us; we don't own them.", "Kristin Cast"),
-            ("In ancient times cats were worshipped as gods; they have not forgotten this.", "Terry Pratchett")
-        ],
-        'bird': [
-            ("A bird does not sing because it has an answer, it sings because it has a song.", "Chinese Proverb"),
-            ("The early bird might get the worm, but the second mouse gets the cheese.", "Willie Nelson"),
-            ("Be like a bird, sing after every storm.", "Beth Mende Conny"),
-            ("Birds are a miracle because they prove to us there is a finer, simpler state of being.", "Douglas Coupland")
-        ],
-        'default': [
-            ("Until one has loved an animal, a part of one's soul remains unawakened.", "Anatole France"),
-            ("Animals are such agreeable friends—they ask no questions; they pass no criticisms.", "George Eliot"),
-            ("The greatness of a nation can be judged by the way its animals are treated.", "Mahatma Gandhi"),
-            ("Pets are not our whole life, but they make our lives whole.", "Roger Caras")
-        ]
-    }
-    
-    # Select appropriate quote based on pet species
-    species_key = pet.species.lower() if pet.species.lower() in pet_quotes else 'default'
-    import random
-    selected_quote = random.choice(pet_quotes[species_key])
-    
-    # Get AI-generated care tips
-    tips = get_openrouter_tips(pet)
-    
-    return render_template('care_tips.html', 
-                         pet=pet, 
-                         tips=tips, 
-                         pet_quote=selected_quote[0], 
-                         quote_author=selected_quote[1])
-
 @app.route('/pet/<int:pet_id>/reminders')
 @login_required
 def reminders(pet_id):
@@ -537,101 +525,3 @@ def weight_chart_data(pet_id):
     }
     
     return jsonify(data)
-
-@app.route('/pet/<int:pet_id>/generate_profile')
-@login_required
-def generate_pet_profile(pet_id):
-    pet = Pet.query.get_or_404(pet_id)
-    
-    # Check if user owns this pet
-    if pet.user_id != session['user_id']:
-        flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    return render_template('generate_profile.html', pet=pet, art_styles=ART_STYLES)
-
-@app.route('/pet/<int:pet_id>/generate_image', methods=['POST'])
-@login_required
-def generate_pet_image(pet_id):
-    pet = Pet.query.get_or_404(pet_id)
-    
-    # Check if user owns this pet
-    if pet.user_id != session['user_id']:
-        return jsonify({'error': 'Access denied'}), 403
-    
-    art_style = request.form.get('art_style', 'realistic')
-    additional_details = request.form.get('additional_details', '')
-    generate_variations = request.form.get('generate_variations') == 'true'
-    
-    try:
-        if generate_variations:
-            variations = generate_pet_variations(
-                pet_name=pet.name,
-                pet_species=pet.species,
-                pet_breed=pet.breed,
-                base_style=art_style,
-                num_variations=3
-            )
-            return jsonify({
-                'success': True,
-                'variations': variations
-            })
-        else:
-            result = generate_pet_profile_picture(
-                pet_name=pet.name,
-                pet_species=pet.species,
-                pet_breed=pet.breed,
-                art_style=art_style,
-                additional_details=additional_details
-            )
-            if result['success']:
-                return jsonify({
-                    'success': True,
-                    'image_url': result['image_url'],
-                    'image_filename': result['image_filename'],
-                    'prompt_used': result['prompt_used'],
-                    'style_used': result['style_used']
-                })
-            else:
-                return jsonify({
-                    'success': False,
-                    'error': result['error']
-                })
-    except Exception as e:
-        app.logger.error(f"Image generation error: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to generate image. Please try again.'
-        })
-
-@app.route('/pet/<int:pet_id>/set_generated_photo', methods=['POST'])
-@login_required
-def set_generated_photo(pet_id):
-    pet = Pet.query.get_or_404(pet_id)
-    
-    # Check if user owns this pet
-    if pet.user_id != session['user_id']:
-        return jsonify({'error': 'Access denied'}), 403
-    
-    image_filename = request.json.get('image_filename')
-    
-    if not image_filename:
-        return jsonify({'error': 'No image filename provided'}), 400
-    
-    try:
-        # Update pet's photo path
-        pet.photo_path = image_filename
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': f'Profile picture updated for {pet.name}!'
-        })
-    
-    except Exception as e:
-        db.session.rollback()
-        app.logger.error(f"Error updating pet photo: {e}")
-        return jsonify({
-            'success': False,
-            'error': 'Failed to update profile picture'
-        })

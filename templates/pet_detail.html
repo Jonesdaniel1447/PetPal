@@ -69,7 +69,7 @@
             </div>
             
             <div class="col-md-6">
-                <a href="{{ url_for('care_tips', pet_id=pet.id) }}" class="card text-decoration-none h-100">
+                <a href="{{ url_for('care_checklist', pet_id=pet.id) }}" class="card text-decoration-none h-100">
                     <div class="card-body text-center">
                         <i data-feather="zap" style="width: 48px; height: 48px;" class="text-warning mb-3"></i>
                         <h5 class="card-title">AI Care Tips</h5>
@@ -89,14 +89,14 @@
             </div>
             
             <div class="col-md-6">
-                <a href="{{ url_for('generate_pet_profile', pet_id=pet.id) }}" class="card text-decoration-none h-100 ai-feature-card">
-                    <div class="card-body text-center">
-                        <i data-feather="help-circle" style="width: 48px; height: 48px;" class="text-gradient mb-3"></i>
-                        <h5 class="card-title">AI Q&amp;A</h5>
-                        <p class="card-text text-muted">Ask questions about your pet and get instant AI-powered answers</p>
-                        <div class="ai-badge">
-                            <span class="badge bg-gradient-primary">🤖 AI Q&amp;A</span>
-                        </div>
+                <a href="{{ url_for('generate_pet_name') }}" class="card text-decoration-none h-100 ai-feature-card bg-primary bg-gradient text-light">
+    <div class="card-body text-center">
+        <i data-feather="star" style="width: 48px; height: 48px;" class="mb-3"></i>
+        <h5 class="card-title">AI Pet Name Generator</h5>
+<p class="card-text text-light">Get creative, themed, or unique name ideas for your pet in one click!</p>
+<div class="ai-badge">
+    <span class="badge bg-warning text-dark">✨ Name Ideas</span>
+</div>
                     </div>
                 </a>
             </div>
